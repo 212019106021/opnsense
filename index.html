@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Secure Network Access</title>
+  <link rel="shortcut icon" href="favicon/favicon.ico" type="image/x-icon">
+  <link rel="icon"          href="favicon/favicon.ico" type="image/x-icon">
+  <script src="js/jquery-3.5.1.min.js"></script>
+  <style>
+    /* ═══════════════════════════════════════════
+       BRAND VARIABLES — edit these to customise
+       ═══════════════════════════════════════════ */
+    :root {
+      --brand-primary:   #0A2540;
+      --brand-accent:    #1A73E8;
+      --brand-accent-h:  #1558C0;
+      --brand-danger:    #C03E14;
+      --brand-success:   #1E7D45;
+      --brand-muted:     #5A6A7E;
+      --brand-border:    rgba(10,37,64,0.14);
+      --brand-surface:   rgba(255,255,255,0.97);
+      --radius:          10px;
+      --shadow:          0 8px 40px rgba(10,37,64,0.18), 0 2px 8px rgba(10,37,64,0.10);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100vh; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; color: var(--brand-primary); }
+    body {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      /* BACKGROUND IMAGE — replace URL with your own image path e.g. url('images/bg.jpg') */
+     
+        
+
+        background:
+        url('/images/backgroung.png') center/cover no-repeat fixed;
+
+    }
+    
+    
+    .card {  border-radius: 16px; box-shadow: var(--shadow); width: 100%; max-width: 440px; overflow: hidden; margin: 24px 16px; }
+    .card-header {  padding: 28px 32px 22px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .logo-wrap { width: 58px; height: 58px; border-radius: 14px;  display: flex; align-items: center; justify-content: center; }
+    .logo-wrap svg { width: 36px; height: 36px; }
+    .org-name    { font-size: 17px; font-weight: 700; color: #fff; letter-spacing: 0.2px; }
+    .org-tagline { font-size: 11.5px; color: rgba(255,255,255,0.55); letter-spacing: 0.6px; text-transform: uppercase; }
+    .tabs { display: flex; border-bottom: 1px solid var(--brand-border); }
+    .tab-btn { flex: 1; padding: 12px 0; background: none; border: none; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--brand-muted); border-bottom: 2.5px solid transparent; margin-bottom: -1px; transition: color 0.18s, border-color 0.18s; font-family: inherit; }
+    .tab-btn.active             { color: black; border-bottom-color: rgb(244, 136, 28) }
+    .tab-btn:hover:not(.active) { color: var(--brand-primary); }
+    .card-body { padding: 26px 32px 30px; }
+    .form-panel        { display: none; }
+    .form-panel.active { display: block; }
+    .panel-title    { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .panel-subtitle { font-size: 13px; color: var(--brand-muted); margin-bottom: 20px; line-height: 1.5; }
+    .field  { margin-bottom: 16px; }
+    label   { display: block; font-size: 12px; font-weight: 600; color: var(--brand-muted); text-transform: uppercase; letter-spacing: 0.55px; margin-bottom: 6px; }
+    input[type="text"], input[type="password"] { width: 100%; padding: 11px 14px; border: 1px solid var(--brand-border); border-radius: var(--radius); font-family: inherit; font-size: 15px; color: var(--brand-primary); background: #fff; outline: none; -webkit-appearance: none; appearance: none; transition: border-color 0.18s, box-shadow 0.18s; }
+    input[type="text"]:focus, input[type="password"]:focus { border-color: var(--brand-accent); box-shadow: 0 0 0 3px rgba(26,115,232,0.14); }
+    input::placeholder { color: #b0b8c4; }
+    .pw-wrap       { position: relative; }
+    .pw-wrap input { padding-right: 44px; }
+    .pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--brand-muted); padding: 4px; line-height: 1; }
+    .pw-toggle:hover { color: var(--brand-primary); }
+    input.voucher-input { font-size: 20px; letter-spacing: 4px; text-align: center;  font-weight: 600; }
+    .btn-primary { width: 100%; padding: 13px; background: #1c2a3d; color: #fff; border: none; border-radius: var(--radius); font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 6px; transition: background 0.18s, transform 0.1s; }
+    .btn-primary:hover  { background: var(--brand-accent-h); }
+    .btn-primary:active { transform: scale(0.985); }
+    .btn-outline { width: 100%; padding: 13px; background: transparent; color: var(--brand-primary); border: 1.5px solid var(--brand-border); border-radius: var(--radius); font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 6px; transition: background 0.18s; }
+    .btn-outline:hover { background: rgba(10,37,64,0.05); }
+    .alert { display: none; border-radius: var(--radius); padding: 10px 36px 10px 14px; font-size: 13.5px; line-height: 1.5; margin-bottom: 16px; position: relative; }
+    .alert.error   { background: #fdf0ef; color: var(--brand-danger); border: 1px solid #f5c5c0; }
+    .alert.show    { display: block; }
+    .alert-close { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 18px; cursor: pointer; color: inherit; line-height: 1; padding: 2px 4px; }
+    .logout-panel { text-align: center; padding: 8px 0 4px; }
+    .logout-panel .panel-subtitle { margin-bottom: 24px; }
+    .card-footer { padding: 12px 32px 16px; border-top: 1px solid var(--brand-border); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .footer-note { font-size: 11.5px; color: white; line-height: 1.4; }
+    .footer-note a { color: rgb(244, 136, 28); text-decoration: none; }
+    .footer-secure { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: white; font-weight: 600; flex-shrink: 0; }
+    .footer-secure svg { width: 13px; height: 13px; }
+    .hidden { display: none !important; }
+    @media (max-width: 480px) { .card-header, .card-body, .card-footer { padding-left: 20px; padding-right: 20px; } }
+  </style>
+</head>
+<body>
+<div class="card" role="main" style=" background-image: linear-gradient(to bottom, white, rgba(244, 136, 28, 0.5));">
+
+  <!-- HEADER: replace SVG below with <img src="images/your-logo.png"> -->
+  <div class="card-header">
+    <div class="logo-wrap">
+      <!-- <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M18 3L5 9V18C5 25.5 10.9 32.4 18 34C25.1 32.4 31 25.5 31 18V9L18 3Z"
+              fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.65)" stroke-width="1.4"/>
+        <path d="M12.5 18.5L16.5 22.5L23.5 14.5" stroke="white" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg> -->
+      <img src="images/logo1.webp" alt="Deepsense" width="300" height="56">
+    </div>
+    <!-- <div class="org-name">Deepsense</div> -->
+    <!-- <div class="org-tagline">Secure Guest Wi-Fi</div> -->
+  </div>
+
+  <!-- TABS (revealed by JS when auth type needs password) -->
+  <div class="tabs hidden" id="tab-row" role="tablist">
+    <button class="tab-btn active" role="tab" aria-selected="true"
+            aria-controls="login_password" id="tab-creds" onclick="switchTab('creds')">
+      Username &amp; Password
+    </button>
+    <button class="tab-btn" role="tab" aria-selected="false"
+            aria-controls="panel-voucher" id="tab-voucher" onclick="switchTab('voucher')">
+      Access Voucher
+    </button>
+  </div>
+
+  <div class="card-body">
+
+    <!-- Shared error alert -->
+    <div class="alert error hidden" id="alertMSG" role="alert" aria-live="polite">
+      <span id="errorMSGtext"></span>
+      <button class="alert-close" id="btnCloseError" aria-label="Dismiss">&times;</button>
+    </div>
+
+    <!-- STATE 1: Username + Password -->
+    <div class="form-panel hidden" id="login_password">
+      <div class="panel-title">Sign in to continue</div>
+      <div class="panel-subtitle">Use your network credentials to access the internet.</div>
+      <div class="field">
+        <label for="inputUsername">Username</label>
+        <input type="text" id="inputUsername" placeholder="e.g. john.doe"
+               autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
+      </div>
+      <div class="field">
+        <label for="inputPassword">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="inputPassword" placeholder="••••••••" autocomplete="current-password">
+          <button type="button" class="pw-toggle" aria-label="Toggle password visibility" onclick="togglePw()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <button class="btn-primary" id="signin" type="button">Connect to Network</button>
+    </div>
+
+    <!-- STATE 2: Voucher -->
+    <div class="form-panel hidden" id="panel-voucher">
+      <div class="panel-title">Enter your access voucher</div>
+      <div class="panel-subtitle">Enter the code from your voucher card. Codes are case-insensitive.</div>
+      <div class="field">
+        <label for="inputVoucher">Voucher Code</label>
+        <input type="text" id="inputVoucher" class="voucher-input" placeholder="XXXX-XXXX"
+               autocomplete="off"  autocapitalize="off" spellcheck="false" maxlength="9">
+      </div>
+      <button class="btn-primary" id="signin_voucher" type="button">Activate Voucher</button>
+    </div>
+
+    <!-- STATE 3: No auth / click-through -->
+    <div class="form-panel hidden" id="login_none">
+      <div class="panel-title">Welcome</div>
+      <div class="panel-subtitle">Click below to accept the terms and access the network.</div>
+      <button class="btn-primary" id="signin_anon" type="button">Access Network</button>
+    </div>
+
+    <!-- STATE 4: Already logged in -->
+    <div class="hidden logout-panel" id="logout_frm">
+      <div class="panel-title">You are connected</div>
+      <div class="panel-subtitle">Your session is active. You can disconnect at any time.</div>
+      <button class="btn-outline" id="logoff" type="button">Disconnect</button>
+    </div>
+
+  </div>
+
+  <div class="card-footer">
+    <span class="footer-note">
+      By connecting you agree to our
+       <a href="https://deepsense.in/privacy-policy" target="_blank">
+        Acceptable Use Policy
+      </a>
+      .</span>
+    <span class="footer-secure" aria-label="Secured">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="11" width="18" height="11" rx="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      Secured
+    </span>
+  </div>
+</div>
+
+<script>
+  /* ═══════════════════════════════════════════════════════════
+     OPNsense Captive Portal REST API — matches default template
+     POST /api/captiveportal/access/logon/   { user, password }
+     POST /api/captiveportal/access/logoff/  { user, password }
+     POST /api/captiveportal/access/status/  { user, password }
+     Response: { clientState: "AUTHORIZED"|"NOT_AUTHORIZED", authType: "none"|... }
+  ═══════════════════════════════════════════════════════════ */
+
+  var redirurl = (new URL(window.location)).searchParams.get('redirurl');
+
+  function showAlert(msg) {
+    $('#errorMSGtext').html(msg);
+    $('#alertMSG').removeClass('hidden').addClass('show');
+  }
+  function hideAlert() {
+    $('#alertMSG').addClass('hidden').removeClass('show');
+  }
+  function doRedirect() {
+    if (redirurl !== null) {
+      window.location = 'http://' + redirurl + '?refresh';
+    } else {
+      window.location.reload();
+    }
+  }
+
+  window.switchTab = function(tab) {
+    var isCreds = (tab === 'creds');
+    $('#login_password').toggleClass('hidden', !isCreds).toggleClass('active', isCreds);
+    $('#panel-voucher').toggleClass('hidden', isCreds).toggleClass('active', !isCreds);
+    $('#tab-creds').toggleClass('active', isCreds).attr('aria-selected', isCreds ? 'true' : 'false');
+    $('#tab-voucher').toggleClass('active', !isCreds).attr('aria-selected', isCreds ? 'false' : 'true');
+    hideAlert();
+  };
+
+  window.togglePw = function() {
+    var inp = document.getElementById('inputPassword');
+    inp.type = (inp.type === 'password') ? 'text' : 'password';
+  };
+
+  $('#inputVoucher').on('input', function() {
+    var raw = this.value.replace(/[^a-zA-Z0-9]/g, '');
+    var parts = raw.match(/.{1,4}/g);
+    this.value = parts ? parts.join('-') : '';
+});
+
+  $('#btnCloseError').click(function() { hideAlert(); });
+
+  /* Sign in — credentials */
+  $('#signin').click(function() {
+    hideAlert();
+    $.ajax({ type:'POST', url:'/api/captiveportal/access/logon/', dataType:'json',
+      data:{ user: $('#inputUsername').val(), password: $('#inputPassword').val() }
+    }).done(function(data) {
+      if (data['clientState'] === 'AUTHORIZED') {
+        doRedirect();
+      } else {
+        $('#inputUsername').val(''); $('#inputPassword').val('');
+        showAlert('Authentication failed. Please check your username and password.');
+      }
+    }).fail(function() { showAlert('Unable to reach the authentication server. Please try again.'); });
+  });
+
+  /* Sign in — voucher (voucher code goes in "user" field, password empty) */
+$('#signin_voucher').click(function() {
+  hideAlert();
+
+  // Get voucher value
+  var voucher = $('#inputVoucher').val().trim();
+
+  // Validate format ABCD-1234
+  var parts = voucher.split('-');
+
+  if (parts.length !== 2 || parts[0].length !== 4 || parts[1].length !== 4) {
+    showAlert('Please enter a valid voucher code.');
+    return;
+  }
+
+  // Split username and password
+  var username = parts[0];
+  var password = parts[1];
+
+  $.ajax({
+    type: 'POST',
+    url: '/api/captiveportal/access/logon/',
+    dataType: 'json',
+    data: {
+      user: username,
+      password: password
+    }
+  }).done(function(data) {
+
+    if (data['clientState'] === 'AUTHORIZED') {
+      doRedirect();
+    } else {
+      showAlert('Invalid or expired voucher. Please check the code and try again.');
+    }
+
+  }).fail(function() {
+    showAlert('Unable to reach the authentication server. Please try again.');
+  });
+
+});
+
+  /* Sign in — anonymous */
+  $('#signin_anon').click(function() {
+    hideAlert();
+    $.ajax({ type:'POST', url:'/api/captiveportal/access/logon/', dataType:'json',
+      data:{ user:'', password:'' }
+    }).done(function(data) {
+      if (data['clientState'] === 'AUTHORIZED') { doRedirect(); }
+      else { showAlert('Login failed. Please try again.'); }
+    }).fail(function() { showAlert('Unable to reach the authentication server. Please try again.'); });
+  });
+
+  /* Logoff */
+  $('#logoff').click(function() {
+    hideAlert();
+    $.ajax({ type:'POST', url:'/api/captiveportal/access/logoff/', dataType:'json',
+      data:{ user:'', password:'' }
+    }).done(function() { window.location.reload(); }
+    ).fail(function() { showAlert('Unable to connect to authentication server.'); });
+  });
+
+  /* Status check on page load — identical logic to OPNsense default template */
+  $.ajax({ type:'POST', url:'/api/captiveportal/access/status/', dataType:'json',
+    data:{ user: $('#inputUsername').val(), password: $('#inputPassword').val() }
+  }).done(function(data) {
+    if (data['clientState'] === 'AUTHORIZED') {
+      $('#logout_frm').removeClass('hidden');
+    } else if (data['authType'] === 'none') {
+      $('#login_none').removeClass('hidden').addClass('active');
+    } else {
+      /* show tabs + credentials panel by default */
+      $('#tab-row').removeClass('hidden');
+      $('#login_password').removeClass('hidden').addClass('active');
+    }
+  }).fail(function() {
+    showAlert('Unable to connect to authentication server.');
+    $('#tab-row').removeClass('hidden');
+    $('#login_password').removeClass('hidden').addClass('active');
+  });
+</script>
+</body>
+</html>
